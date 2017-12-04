@@ -12,17 +12,23 @@ namespace TileBasedPlayer20172018
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
+   
     public class Game1 : Game
     {
+        public TilePlayer player { get; set; }
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SentryTurret sentryTurret;
         int tileWidth = 64;
         int tileHeight = 64;
+        List<SentryTurret> sentryList = new List<SentryTurret>();
         List<TileRef> TileRefs = new List<TileRef>();
         List<Collider> colliders = new List<Collider>();
         string[] backTileNames = { "blue box", "pavement", "blue steel", "green box", "home" };
         public enum TileType { BLUEBOX, PAVEMENT, BLUESTEEL, GREENBOX, HOME };
         int[,] tileMap = new int[,]
+
+
     {
         {1,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
         {1,2,3,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2},
@@ -75,6 +81,8 @@ namespace TileBasedPlayer20172018
             SetColliders(TileType.BLUESTEEL);
             SetColliders(TileType.BLUEBOX);
 
+            player = (TilePlayer)Services.GetService(typeof(TilePlayer));
+
             base.Initialize();
         }
 
@@ -102,7 +110,23 @@ namespace TileBasedPlayer20172018
             new SimpleTileLayer(this, backTileNames, tileMap, TileRefs, tileWidth, tileHeight);
             List<Tile> found = SimpleTileLayer.getNamedTiles(backTileNames[(int)TileType.GREENBOX]);
             // TODO: use this.Content to load your game content here
+
+            for (int i = 0; i < found.Count; i++)
+            {
+                sentryTurret = new SentryTurret(this, new Vector2(found[i].X * tileWidth, found[i].Y * tileHeight), new List<TileRef>()
+                {
+                new TileRef(20, 2, 0),
+                new TileRef(20, 3, 0),
+                new TileRef(20, 4, 0),
+                new TileRef(20, 5, 0),
+                new TileRef(20, 6, 0),
+                new TileRef(20, 7, 0),
+                new TileRef(20, 8, 0),
+                }, 64, 64, 0f);
+                sentryList.Add(sentryTurret);
+            }
         }
+        
 
         public void SetColliders(TileType t)
         {
@@ -137,6 +161,10 @@ namespace TileBasedPlayer20172018
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            for (int i = 0; i < sentryList.Count; i++)
+            {
+                sentryList[i].follow(player);
+            }
 
             // TODO: Add your update logic here
 
